@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: RollinMomentServer
+
+  profiles:
+    active: local

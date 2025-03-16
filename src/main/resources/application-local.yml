@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: RollinMomentServer
+
+  config:
+    import: "classpath:./config/local-var.yml"
+
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: "${database.url}"
+    username: "${database.username}"
+    password: "${database.password}"
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
