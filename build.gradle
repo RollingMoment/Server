@@ -44,7 +44,7 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
 	// swagger
-
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
 
 	// QueryDSL 설정
 	implementation "com.querydsl:querydsl-jpa:5.0.0:jakarta"
@@ -59,12 +59,19 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 // QueryDsl
-def querydslSrcDir = 'src/main/generated'
-
-clean {
-	delete file(querydslSrcDir)
-}
+def generated = 'src/main/generated'
 
 tasks.withType(JavaCompile).configureEach {
-	options.generatedSourceOutputDirectory = file(querydslSrcDir)
+	options.getGeneratedSourceOutputDirectory().set(file(generated))
 }
+
+//java sourceSets 에 querydsl QClass 위치 추가
+sourceSets {
+	main.java.srcDirs += [ generated ]
+}
+
+clean {
+	delete file(generated)
+}
+
+//QueryDSL 설정부 끝
