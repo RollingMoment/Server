@@ -6,6 +6,8 @@ import com.RollinMoment.RollinMomentServer.jwt.JwtTokenProvider;
 import com.RollinMoment.RollinMomentServer.member.dto.LoginDto;
 import com.RollinMoment.RollinMomentServer.member.dto.SignUpDto;
 import com.RollinMoment.RollinMomentServer.member.dto.TokenDto;
+import com.RollinMoment.RollinMomentServer.member.entity.UserAuthority;
+import com.RollinMoment.RollinMomentServer.member.repository.UserAuthorityRepository;
 import com.RollinMoment.RollinMomentServer.member.service.UserService;
 import com.RollinMoment.RollinMomentServer.member.service.SignUpService;
 import com.RollinMoment.RollinMomentServer.response.member.ResponseJoinDto;
@@ -32,6 +34,7 @@ public class UserController {
     private final SignUpService signUpService;
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserAuthorityRepository userAuthorityRepository;
 
     @Operation(summary = "회원가입", description = "사용자 회원가입 아이디 이메일")
     @ApiResponse(responseCode = "200", description = "회원가입 성공")
@@ -98,6 +101,36 @@ public class UserController {
             return ResponseUtil.ErrorResponse(-1, "존재하지 않는 사용자입니다.", HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return ResponseUtil.ErrorResponse(-1, "회원 탈퇴 중 오류가 발생했습니다.", HttpStatus.BAD_REQUEST);
+        }
+    }
+    @Operation(summary = "자동 로그인", description = "Refresh Token 으로 Access Token 재발급")
+    @PostMapping("/reissue")
+    public ResponseEntity<ResponseJoinDto> reissue(@RequestHeader("Authorization") String refreshToken) {
+        try {
+            refreshToken = jwtTokenProvider.stripBearerPrefix(refreshToken);
+
+            // RefreshToken 검증
+            if (!jwtTokenProvider.validateToken(refreshToken)) {
+                return ResponseUtil.ErrorResponse(-1, "Refresh Token이 유효하지 않습니다.", HttpStatus.UNAUTHORIZED);
+            }
+
+            String userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
+            UserAuthority authority = userAuthorityRepository.findByUserId(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+            if (!authority.getRefreshToken().equals(refreshToken)) {
+                return ResponseUtil.ErrorResponse(-1, "Refresh Token이 일치하지 않습니다.", HttpStatus.UNAUTHORIZED);
+            }
+
+            // AccessToken 재발급
+            String newAccessToken = jwtTokenProvider.generateAccessToken(userId);
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("accessToken", newAccessToken);
+
+            return ResponseUtil.SuccessDataResponse(data);
+        } catch (Exception e) {
+            return ResponseUtil.ErrorResponse(-1, "재발급 실패: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
