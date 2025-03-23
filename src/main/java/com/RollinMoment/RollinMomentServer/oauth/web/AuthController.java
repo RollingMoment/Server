@@ -86,6 +86,7 @@ public class AuthController {
             String accessToken = jwtTokenProvider.getHeaderToken(request, JwtTokenProvider.ACCESS_TOKEN_HEADER);
             String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
 
+            kakaoOauthService.unlinkKakao(accessToken);
             userService.delete(userId);
 
             return ResponseUtil.SuccessResponse("카카오 회원 탈퇴 완료");

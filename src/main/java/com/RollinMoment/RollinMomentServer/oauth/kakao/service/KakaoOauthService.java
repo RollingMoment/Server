@@ -12,10 +12,7 @@ import com.RollinMoment.RollinMomentServer.member.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -98,4 +95,23 @@ public class KakaoOauthService {
 
         return new TokenDto(accessToken, refreshToken);
     }
+
+    public void unlinkKakao(String kakaoAccessToken) {
+        String url = "https://kapi.kakao.com/v1/user/unlink";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + kakaoAccessToken);
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<String> request = new HttpEntity<>("", headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+            log.info("카카오 연결 해제 성공: {}", response.getBody());
+        } catch (Exception e) {
+            log.error("카카오 연결 해제 실패: {}", e.getMessage());
+            throw new RuntimeException("카카오 연결 끊기에 실패했습니다.");
+        }
+    }
+
 }
