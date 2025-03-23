@@ -2,8 +2,8 @@ spring:
   application:
     name: RollinMomentServer
 
-  config:
-    import: "classpath:./config/local-var.yml"
+#  config:
+##    import: "classpath:./config/local-var.yml"
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
@@ -19,3 +19,8 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
+
+
+firebase:
+  project-id: fir-d61fb
+  key-path: fir-d61fb-firebase-adminsdk-58xi7-8db4ff70b2.json
