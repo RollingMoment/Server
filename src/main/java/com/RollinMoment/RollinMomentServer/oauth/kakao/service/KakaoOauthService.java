@@ -2,6 +2,8 @@ package com.RollinMoment.RollinMomentServer.oauth.kakao.service;
 
 
 import com.RollinMoment.RollinMomentServer.jwt.JwtTokenProvider;
+import com.RollinMoment.RollinMomentServer.member.entity.UserAuthority;
+import com.RollinMoment.RollinMomentServer.member.repository.UserAuthorityRepository;
 import com.RollinMoment.RollinMomentServer.oauth.kakao.dto.KakaoUserDto;
 import com.RollinMoment.RollinMomentServer.member.dto.TokenDto;
 import com.RollinMoment.RollinMomentServer.member.entity.UserEntity;
@@ -16,6 +18,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Date;
 import java.util.Map;
 
 @Service
@@ -25,6 +28,7 @@ public class KakaoOauthService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RestTemplate restTemplate;
+    private final UserAuthorityRepository userAuthorityRepository;
 
     public KakaoUserDto getUserProfile(String kakaoAccessToken) {
         HttpHeaders headers = new HttpHeaders();
@@ -85,10 +89,14 @@ public class KakaoOauthService {
                 });
 
         // JWT 발급
-        String accessToken = jwtTokenProvider.generateAccessToken(
-                userEntity.getUserId()
-        );
+        String accessToken = jwtTokenProvider.generateAccessToken(userEntity.getUserId());
         String refreshToken = jwtTokenProvider.generateRefreshToken();
+        Date expiryDate = jwtTokenProvider.getRefreshTokenExpiryDate();
+        userAuthorityRepository.save(new UserAuthority(
+                userEntity.getUserId(),
+                refreshToken,
+                expiryDate
+        ));
 
         return new TokenDto(accessToken, refreshToken);
     }
