@@ -11,7 +11,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class ResponseJoinDto {
     private Meta meta;
-    private Map<String, Object> body;
+    private Object body;
 
     @Getter
     @Setter

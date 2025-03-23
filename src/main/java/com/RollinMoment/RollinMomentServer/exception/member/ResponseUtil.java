@@ -1,4 +1,4 @@
-package com.RollinMoment.RollinMomentServer.config;
+package com.RollinMoment.RollinMomentServer.exception.member;
 
 import com.RollinMoment.RollinMomentServer.response.member.ResponseJoinDto;
 import org.springframework.http.ResponseEntity;
