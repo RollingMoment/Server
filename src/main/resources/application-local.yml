@@ -5,11 +5,18 @@ spring:
   config:
     import: "classpath:./config/local-var.yml"
 
+
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: "${database.url}"
     username: "${database.username}"
     password: "${database.password}"
+
+  jwt:
+    hashcode: "${jwt.hashcode}"
+
+  aes:
+    secret: "${aes.secret}"
 
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
@@ -19,3 +26,6 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
+
+
+
