@@ -65,9 +65,6 @@ public class KakaoOauthService {
         }
     }
 
-
-
-
     public TokenDto processLogin(KakaoUserDto kakaoUserDto) {
 
         UserEntity userEntity = userRepository.findByUserId(kakaoUserDto.getId())
