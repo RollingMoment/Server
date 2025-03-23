@@ -1,5 +1,6 @@
 package com.RollinMoment.RollinMomentServer.member.service;
 
+import com.RollinMoment.RollinMomentServer.common.util.AESUtil;
 import com.RollinMoment.RollinMomentServer.exception.member.InvalidEmailException;
 import com.RollinMoment.RollinMomentServer.exception.member.UsernameAlreadyExistsException;
 import com.RollinMoment.RollinMomentServer.member.dto.SignUpDto;
@@ -21,6 +22,8 @@ import java.util.Hashtable;
 public class SignUpService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final AESUtil aesUtil;
+
 
     public void SignUp(SignUpDto signUpDto) {
         if(!isValidEmail(signUpDto.getUserId())){
@@ -30,8 +33,9 @@ public class SignUpService {
         if(isEmailExists(signUpDto.getUserId())){
             throw new UsernameAlreadyExistsException("이미 존재하는 회원 입니다");
         }
+        String decryptedPassword = aesUtil.decrypt(signUpDto.getPassword());
         //비밀번호 암호화(bcrypt)
-        signUpDto.setPassword(bCryptPasswordEncoder.encode(signUpDto.getPassword()));
+        signUpDto.setPassword(bCryptPasswordEncoder.encode(decryptedPassword));
 
         UserEntity userEntity = UserEntity.transDTO(signUpDto);
 

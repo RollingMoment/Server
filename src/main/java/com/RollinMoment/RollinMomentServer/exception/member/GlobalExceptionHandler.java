@@ -1,6 +1,5 @@
 package com.RollinMoment.RollinMomentServer.exception.member;
 
-import com.RollinMoment.RollinMomentServer.config.ResponseUtil;
 import com.RollinMoment.RollinMomentServer.response.member.ResponseJoinDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

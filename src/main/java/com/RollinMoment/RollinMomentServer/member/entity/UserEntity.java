@@ -25,13 +25,13 @@ public class UserEntity extends BaseTimeEntity {
     private String userId; //. 이메일 아이디
 
     @Column(nullable = false)
-    private String deviceId; //기기 번호값
-
-    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false , length = 50)
     private String nickname;
+
+    @Column(nullable = false)
+    private String deviceId; //기기 번호값
 
     @Column(nullable = false)
     private boolean alarm; // 알림 성정 True : ON , False : OFF
