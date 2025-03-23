@@ -1,12 +1,14 @@
 package com.RollinMoment.RollinMomentServer.config;
 
-import com.RollinMoment.RollinMomentServer.jwt.JWTFilter;
-import com.RollinMoment.RollinMomentServer.jwt.JWTUtil;
-import com.RollinMoment.RollinMomentServer.jwt.LoginFilter;
+import com.RollinMoment.RollinMomentServer.jwt.JwtFilter;
+import com.RollinMoment.RollinMomentServer.jwt.JwtTokenProvider;
+import com.RollinMoment.RollinMomentServer.jwt.JwtUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,21 +23,20 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(securedEnabled = true)
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final AuthenticationConfiguration authenticationConfiguration;
-    private final JWTUtil jwtUtil;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtUtil jwtUtil;
 
     private final String[] WHITE_LIST = {
             "/" ,
             "/api/v1/auth/**",
-            "/swagger-ui/**"
-    };
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
-        this.authenticationConfiguration = authenticationConfiguration;
-        this.jwtUtil = jwtUtil;
-    }
+    };
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -49,8 +50,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -59,11 +58,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(getWhiteListMatchers()).permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class)
-                //AuthenticationManager()와 JWTUtil 인수 전달
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class)
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .addFilterBefore(new JwtFilter(jwtTokenProvider ,jwtUtil),
+                        UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
