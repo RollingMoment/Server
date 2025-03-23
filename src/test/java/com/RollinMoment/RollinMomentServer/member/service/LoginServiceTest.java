@@ -10,16 +10,14 @@ import com.RollinMoment.RollinMomentServer.member.entity.UserEntity;
 import com.RollinMoment.RollinMomentServer.member.entity.type.Gender;
 import com.RollinMoment.RollinMomentServer.member.entity.type.Ostype;
 import com.RollinMoment.RollinMomentServer.member.entity.type.Provider;
+import com.RollinMoment.RollinMomentServer.member.entity.type.UserStatus;
 import com.RollinMoment.RollinMomentServer.member.repository.UserAuthorityRepository;
 import com.RollinMoment.RollinMomentServer.member.repository.UserRepository;
-import com.mysema.commons.lang.Assert;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
@@ -36,7 +34,7 @@ class LoginServiceTest {
     private AESUtil aesUtil;
 
     @Autowired
-    private LoginService loginService;
+    private UserService userService;
 
     @Autowired
     private SignUpService signUpService;
@@ -44,8 +42,6 @@ class LoginServiceTest {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
     @Autowired
@@ -75,7 +71,7 @@ class LoginServiceTest {
         loginDto.setUserId("login@naver.com");
         loginDto.setPassword(encryptedPassword); // 클라이언트처럼 암호화된 비밀번호
 
-        TokenDto tokenDto = loginService.login(loginDto);
+        TokenDto tokenDto = userService.login(loginDto);
 
         //THEN
         assertNotNull(tokenDto.getAccessToken());
@@ -86,12 +82,12 @@ class LoginServiceTest {
     }
     @Test
     @DisplayName("로그아웃 테스트")
-    void logoutTest() throws Exception {
+    void logoutTest()  {
         //GIVE
         String userId = "testuser@rollin.com";
         UserEntity user = userRepository.save(new UserEntity(
                 userId, "device123", "암호", "닉네임", true,
-                Gender.NONE, Provider.ROLLINMOMENT, Ostype.ANDROID
+                Gender.NONE, Provider.ROLLINMOMENT, Ostype.ANDROID , UserStatus.ACTIVE,null
         ));
         userRepository.save(user);
 
@@ -105,7 +101,7 @@ class LoginServiceTest {
         assertThat(parsedUserId).isEqualTo(userId); // 확인용
 
         // WHEN
-        loginService.logout(parsedUserId);
+        userService.logout(parsedUserId);
 
         // THEN
         Optional<UserAuthority> deleted = userAuthorityRepository.findByUserId(userId);
