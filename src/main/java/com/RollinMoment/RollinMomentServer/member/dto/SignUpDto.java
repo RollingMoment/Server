@@ -1,8 +1,6 @@
 package com.RollinMoment.RollinMomentServer.member.dto;
 
 
-import com.RollinMoment.RollinMomentServer.member.entity.UserEntity;
-import com.RollinMoment.RollinMomentServer.member.entity.type.Gender;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -36,5 +34,4 @@ public class SignUpDto {
     private String provider; // 소셜 로그인 제공자 (KAKAO, NAVER, GOOGLE, LOCAL)
 
     private String osType; // 운영체제 유형 (ANDROID, IOS, WEB)
-
 }
