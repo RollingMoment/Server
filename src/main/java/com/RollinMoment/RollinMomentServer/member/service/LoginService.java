@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,5 +43,8 @@ public class LoginService {
         return new TokenDto(accessToken, refreshToken);
     }
 
-
+    public void logout(String userId) {
+        Optional<UserAuthority> authority = userAuthorityRepository.findByUserId(userId);
+        authority.ifPresent(userAuthorityRepository::delete);
+    }
 }

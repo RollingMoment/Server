@@ -34,13 +34,11 @@ class SignUpServiceTest {
     @Test
     @DisplayName("회원가입")
     void testSignUpWithEncryptedPassword() {
-        // 1. 평문 비밀번호 준비
+        // GIVE
         String rawPassword = "password123";
-
-        // 2. AES 암호화
         String encryptedPassword = aesUtil.encrypt(rawPassword);
         log.info("암호화 비번 : {}", encryptedPassword);
-        // 3. 회원가입 DTO 생성
+
         SignUpDto dto = new SignUpDto();
         dto.setUserId("test1@example.com");
         dto.setPassword(encryptedPassword);
@@ -51,10 +49,10 @@ class SignUpServiceTest {
         dto.setProvider("ROLLINMOMENT");
         dto.setOsType("ANDROID");
 
-        // 4. 회원가입 수행
+        // WHEN
         signUpService.SignUp(dto);
 
-        // 5. 저장된 비밀번호가 해시로 저장되었는지 검증
+        // THEN
         UserEntity saved = userRepository.findByUserId("test1@example.com").orElseThrow();
 
 

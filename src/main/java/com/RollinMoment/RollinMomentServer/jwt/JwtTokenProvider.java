@@ -61,6 +61,16 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String getUserIdFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(jwtProperties.getSecret())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
+    }
+
     public Date getRefreshTokenExpiryDate() {
         return new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION);
     }

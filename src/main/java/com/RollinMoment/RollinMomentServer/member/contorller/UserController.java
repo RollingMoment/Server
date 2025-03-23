@@ -2,6 +2,7 @@ package com.RollinMoment.RollinMomentServer.member.contorller;
 
 
 import com.RollinMoment.RollinMomentServer.exception.member.ResponseUtil;
+import com.RollinMoment.RollinMomentServer.jwt.JwtTokenProvider;
 import com.RollinMoment.RollinMomentServer.member.dto.LoginDto;
 import com.RollinMoment.RollinMomentServer.member.dto.SignUpDto;
 import com.RollinMoment.RollinMomentServer.member.dto.TokenDto;
@@ -10,6 +11,7 @@ import com.RollinMoment.RollinMomentServer.member.service.SignUpService;
 import com.RollinMoment.RollinMomentServer.response.member.ResponseJoinDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +32,7 @@ public class UserController {
 
     private final SignUpService signUpService;
     private final LoginService loginService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Operation(summary = "회원가입", description = "사용자 회원가입 아이디 이메일")
     @PostMapping("/signUp")
@@ -46,5 +49,16 @@ public class UserController {
         responseBody.put("accessToken", tokenDto.getAccessToken());
         responseBody.put("refreshToken", tokenDto.getRefreshToken());
         return ResponseUtil.SuccessDataResponse("토큰 갱신 성공", responseBody);
+    }
+
+    @Operation(summary = "로그아웃", description = "사용자 로그아웃")
+    @PostMapping("/logout")
+    public ResponseEntity<ResponseJoinDto> logout(HttpServletRequest request) {
+        String token = jwtTokenProvider.getHeaderToken(request, JwtTokenProvider.ACCESS_TOKEN_HEADER);
+        String userId = jwtTokenProvider.getUserIdFromToken(token);
+
+        loginService.logout(userId); // ✅ 이 메서드에서 Refresh Token 삭제 처리
+
+        return ResponseUtil.SuccessResponse("로그아웃 되었습니다.");
     }
 }
