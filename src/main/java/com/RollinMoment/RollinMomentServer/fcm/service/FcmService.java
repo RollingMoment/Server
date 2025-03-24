@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class FcmService {
 	// TODO :: syPushToken == 소영 폰 푸시토큰임. user 회원가입 등 진행 후 삭제
 	private final String syPushToken = "fLEr_JbXRtK-yRRrwYfF7z:APA91bFFWhbdcUMAxR9C86yQp7iiBVr1haWve2np__xeiF3V60f1jtNWlNJeXJ7tKf4H_1MDN7Zw6wFRgdiAdDCmohb4pGpHK7kT-plBVFpCRSV56KnzlRk";
-	private final String jhPushToken = "";
+	private final String jhPushToken = "382478f2bd4fd97609f16a1c33bafeada9a13b0b9ff471ad8e4784b712e8b955";
 
 //	private final UserRepository userRepository;
 
