@@ -62,7 +62,7 @@ public class FcmService {
 //		User user = userRepository.findByUserId(userId).orElseThrow(() -> throw new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 //		pushToken = user.getPushToken();
 
-		return !pushToken.isEmpty() ? pushToken : syPushToken;
+		return !pushToken.isEmpty() ? pushToken : jhPushToken;
 	}
 
 }
