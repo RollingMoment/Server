@@ -29,7 +29,10 @@ public class JwtFilter extends OncePerRequestFilter {
         return path.equals("/")  // ✅ 홈 화면 추가
                 || path.equals("/api/v1/auth/signUp")
                 || path.equals("/api/v1/auth/signIn")
-                || path.equals("/api/v1/auth/logout")
+                || path.equals("/api/v1/auth/signUp/kakao")
+                || path.equals("/api/v1/auth/signIn/kakao")
+                || path.equals("/api/v1/auth/signUp/naver")
+                || path.equals("/api/v1/auth/signIn/naver")
                 || path.startsWith("/swagger-ui")
                 || path.startsWith("/v3/api-docs");
     }
@@ -88,8 +91,6 @@ public class JwtFilter extends OncePerRequestFilter {
         log.error("Access Token 만료 - 로그인 필요");
         jwtUtil.jwtExceptionHandler(response, "Access Token 만료. 다시 로그인 필요.", HttpStatus.UNAUTHORIZED);
     }
-
-
 
     private void setAuthentication(String token) {
         Authentication authentication = jwtTokenProvider.getAuthentication(token);

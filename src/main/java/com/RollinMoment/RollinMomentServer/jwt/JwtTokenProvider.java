@@ -25,24 +25,20 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
 
     private final JwtProperties jwtProperties;
-    private final long ACCESS_TOKEN_EXPIRATION = 15 * 60 * 1000L; // 15분
+    private final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24; // 24 시간
     private final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000L; // 7일
     public static final String ACCESS_TOKEN_HEADER = "Authorization";
-    public static final String BEARER_PREFIX = "Bearer ";
-
     private final CustomUserDetailsService customUserDetailsService;
-
 
     @PostConstruct
     protected void init() {
-        log.info("초기화된 비밀 키: {}", jwtProperties.getSecret()); // ✅ 올바르게 값 출력
+        log.info("초기화된 비밀 키: {}", jwtProperties.getSecret()); // 올바르게 값 출력
     }
 
     // Access Token 생성
     public String generateAccessToken(String userId) {
-        Claims claims = Jwts.claims().setSubject(userId); // ✅ userId만 JWT에 포함
+        Claims claims = Jwts.claims().setSubject(userId);
         Date now = new Date();
-        log.info("생성된 Access Token 생성 : {}", userId);
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
@@ -52,29 +48,31 @@ public class JwtTokenProvider {
     }
 
     // Refresh Token 생성
-    public String generateRefreshToken() {
-        Date now = new Date();
-        return Jwts.builder()
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION))
-                .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecret())
-                .compact();
-    }
+    public String generateRefreshToken(String userId) {
+            Claims claims = Jwts.claims().setSubject(userId);
+            log.info("userId값  = `{}`", userId);
+            Date now = new Date();
+            return Jwts.builder()
+                    .setClaims(claims)
+                    .setIssuedAt(now)
+                    .setExpiration(new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION))
+                    .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecret())
+                    .compact();
 
+    }
+    // Access Toke
     public String getUserIdFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(jwtProperties.getSecret())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-
         return claims.getSubject();
     }
 
     public Date getRefreshTokenExpiryDate() {
         return new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION);
     }
-
 
     // JWT 검증 및 인증 객체 반환
     public Authentication getAuthentication(String token) {
@@ -92,11 +90,6 @@ public class JwtTokenProvider {
 
         return new UsernamePasswordAuthenticationToken(securityUser, null, authorities);
     }
-
-    public void setHeaderAccessToken(HttpServletResponse response, String accessToken) {
-        response.setHeader(ACCESS_TOKEN_HEADER, BEARER_PREFIX + accessToken);
-    }
-
 
     public String getHeaderToken(HttpServletRequest request, String tokenHeader) {
         String bearerToken = request.getHeader(tokenHeader);
@@ -131,7 +124,7 @@ public class JwtTokenProvider {
             log.info("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT 토큰입니다.");
-            throw e; // Access Token 만료시 예외 발생
+            throw e;
         } catch (UnsupportedJwtException e) {
             log.info("지원되지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
