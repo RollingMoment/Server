@@ -55,7 +55,6 @@ public class NaverOauthService {
                 return NaverResponseDto.builder()
                         .userId((String) naverResponse.get("email"))
                         .nickname((String) naverResponse.get("nickname"))
-                        .gender((String) naverResponse.get("gender"))
                         .build();
             } else {
                 throw new RuntimeException("네이버 유저 정보 조회 실패");
@@ -78,10 +77,7 @@ public class NaverOauthService {
                             .nickname(naverResponseDto.getNickname() != null ? naverResponseDto.getNickname() : "네이버 유저")
                             .deviceId(naverUserDto.getDeviceId() != null ? naverUserDto.getDeviceId() : "네이버 고유번호")
                             .alarm(naverUserDto.isAlarm()) // 기본 알림 설정 ON
-                            .gender(naverResponseDto.getGender() != null
-                                    ? Gender.valueOf(naverResponseDto.getGender().toUpperCase())
-                                    : Gender.NONE // ✅ null일 경우 기본값 Gender.NONE
-                            )
+                            .gender(Gender.NONE)
                             .ostype(Ostype.valueOf(naverUserDto.getOsType().toUpperCase()))
                             .provider(Provider.NAVER)
                             .status(UserStatus.ACTIVE)
@@ -108,10 +104,21 @@ public class NaverOauthService {
         NaverResponseDto naverUserInfo = getUserProfileNaver(naverAccessToken);
         UserEntity user = userRepository.findByUserId(naverUserInfo.getUserId())
                 .orElseThrow(() -> new RuntimeException("가입된 사용자가 아닙니다."));
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new IllegalArgumentException("현재 로그인할 수 없는 계정입니다.");
+        }
         String accessToken = jwtTokenProvider.generateAccessToken(user.getUserId());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
-        Date refreshTokenExpiry = jwtTokenProvider.getRefreshTokenExpiryDate();
-        userAuthorityRepository.updateTokenByUserId(refreshToken, refreshTokenExpiry,user.getUserId());
+        Date expiresAt = jwtTokenProvider.getRefreshTokenExpiryDate();
+        int updated = userAuthorityRepository.updateTokenByUserId(refreshToken, expiresAt, user.getUserId());
+
+        if (updated == 0) {
+            userAuthorityRepository.save(new UserAuthority(
+                    user.getUserId(),
+                    refreshToken,
+                    expiresAt
+            ));
+        }
         return new TokenDto(accessToken, refreshToken);
     }
 

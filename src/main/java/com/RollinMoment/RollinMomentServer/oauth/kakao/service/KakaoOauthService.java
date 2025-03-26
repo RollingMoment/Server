@@ -124,11 +124,21 @@ public class KakaoOauthService {
         KakaoResponseDto kakaoUserInfo = getUserProfile(kakaoAccessToken);
         UserEntity user = userRepository.findByUserId(kakaoUserInfo.getUserId())
                 .orElseThrow(() -> new RuntimeException("가입된 사용자가 아닙니다."));
-
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new IllegalArgumentException("현재 로그인할 수 없는 계정입니다.");
+        }
         String accessToken = jwtTokenProvider.generateAccessToken(user.getUserId());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
-        Date refreshTokenExpiry = jwtTokenProvider.getRefreshTokenExpiryDate();
-        userAuthorityRepository.updateTokenByUserId(refreshToken, refreshTokenExpiry,user.getUserId());
+        Date expiresAt = jwtTokenProvider.getRefreshTokenExpiryDate();
+        int updated = userAuthorityRepository.updateTokenByUserId(refreshToken, expiresAt, user.getUserId());
+
+        if (updated == 0) {
+            userAuthorityRepository.save(new UserAuthority(
+                    user.getUserId(),
+                    refreshToken,
+                    expiresAt
+            ));
+        }
         return new TokenDto(accessToken, refreshToken);
     }
 }

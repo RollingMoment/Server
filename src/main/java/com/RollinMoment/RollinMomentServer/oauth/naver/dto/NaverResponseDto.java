@@ -12,5 +12,4 @@ import lombok.NoArgsConstructor;
 public class NaverResponseDto {
     private String userId;
     private String nickname;
-    private String gender;
 }
