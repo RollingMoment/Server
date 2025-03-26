@@ -18,7 +18,7 @@ public class FcmController {
 
 	@PostMapping("/send")
 	public ResponseEntity<Void> sendPushAlarm(@RequestBody FcmPushAlertRequest request) {
-		fcmService.sendByToken(request);
+		fcmService.sendByToken(request, "");
 		return ResponseEntity.ok().build();
 	}
 }
