@@ -14,10 +14,11 @@ public class FcmService {
 	private final String syPushToken = "fLEr_JbXRtK-yRRrwYfF7z:APA91bFFWhbdcUMAxR9C86yQp7iiBVr1haWve2np__xeiF3V60f1jtNWlNJeXJ7tKf4H_1MDN7Zw6wFRgdiAdDCmohb4pGpHK7kT-plBVFpCRSV56KnzlRk";
 	private final String jhPushToken = "fuoLaWI3r08Il2uBGdauyU:APA91bE2wEXH_JzPbFG5BJH6V17FsmwMPlgh9Q2o-kschkRl8rsLF4BICAxqEYRUh1cDsyZVzPMe-yIaSmADDSjWlhG-nMH0D5UCsyyDbPz12UQj6GTlYsA";
 
-//	private final UserRepository userRepository;
-
-	public void sendByToken(FcmPushAlertRequest request){
-		String token = getToken(request.userId());
+	public void sendByToken(FcmPushAlertRequest request, String token){
+		// TODO: test 후 제거
+		if(token.isEmpty()) {
+			token = syPushToken;
+		}
 
 		Message message = Message.builder()
 									.putData("location", "ex.moment")
@@ -71,15 +72,4 @@ public class FcmService {
 						.build())
 				.build();
 	}
-
-	// TODO :: token userId 기반으로 찾아서 사용
-	private String getToken(String userId) {
-		String pushToken = "";
-
-//		User user = userRepository.findByUserId(userId).orElseThrow(() -> throw new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-//		pushToken = user.getPushToken();
-
-		return !pushToken.isEmpty() ? pushToken : jhPushToken;
-	}
-
 }
