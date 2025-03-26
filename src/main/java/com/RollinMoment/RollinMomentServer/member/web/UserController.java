@@ -6,8 +6,11 @@ import com.RollinMoment.RollinMomentServer.jwt.JwtTokenProvider;
 import com.RollinMoment.RollinMomentServer.member.dto.LoginDto;
 import com.RollinMoment.RollinMomentServer.member.dto.SignUpDto;
 import com.RollinMoment.RollinMomentServer.member.dto.TokenDto;
+import com.RollinMoment.RollinMomentServer.member.service.SecurityUser;
 import com.RollinMoment.RollinMomentServer.member.service.UserService;
 import com.RollinMoment.RollinMomentServer.member.service.SignUpService;
+import com.RollinMoment.RollinMomentServer.oauth.apple.dto.AppleUserDto;
+import com.RollinMoment.RollinMomentServer.oauth.apple.service.AppleAuthService;
 import com.RollinMoment.RollinMomentServer.oauth.kakao.dto.KakaoResponseDto;
 import com.RollinMoment.RollinMomentServer.oauth.kakao.dto.KakaoUserDto;
 import com.RollinMoment.RollinMomentServer.oauth.kakao.service.KakaoOauthService;
@@ -23,6 +26,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -40,6 +44,7 @@ public class UserController {
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoOauthService kakaoOauthService;
     private final NaverOauthService naverOauthService;
+    private final AppleAuthService appleAuthService;
 
     @Operation(summary = "회원가입", description = "사용자 회원가입 아이디 이메일")
     @ApiResponse(responseCode = "200", description = "회원가입 성공")
@@ -93,8 +98,9 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "회원 탈퇴 성공")
     @ApiResponse(responseCode = "400", description = "회원 탈퇴 실패")
     @PutMapping("/withdraw")
-    public ResponseEntity<ResponseDto> withdrawUser(@RequestParam String userId) {
+    public ResponseEntity<ResponseDto> withdrawUser(@AuthenticationPrincipal SecurityUser securityUser) {
         try {
+            String userId = securityUser.getUserId();
             userService.delete(userId);
             return ResponseUtil.SuccessResponse("회원탈퇴 완료 되었습니다.");
         } catch (IllegalArgumentException e) {
@@ -138,7 +144,7 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "로그인 성공")
     @ApiResponse(responseCode = "400", description = "로그인 실패")
     @PostMapping("/signIn/kakao")
-    public ResponseEntity<?> kakaoLogin(@RequestHeader("Authorization") String kakaoAccessToken) {
+    public ResponseEntity<ResponseDto> kakaoLogin(@RequestHeader("Authorization") String kakaoAccessToken) {
         try {
             kakaoAccessToken = kakaoAccessToken.replace("Bearer ", "").trim();
             TokenDto tokenDto = kakaoOauthService.loginKakao(kakaoAccessToken);
@@ -257,4 +263,38 @@ public class UserController {
             return ResponseUtil.ErrorResponse(-1, "네이버 회원 탈퇴 실패: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
+//    @PostMapping("/signUp/apple")
+//    public ResponseEntity<ResponseDto> signUpApple(
+//            @RequestHeader("Authorization") String idToken,
+//            @RequestBody AppleUserDto userDto) {
+//        idToken = idToken.replace("Bearer ", "").trim();
+//
+//        TokenDto tokenDto = appleAuthService.appleSignUp(idToken, userDto);
+//        Map<String, Object> responseBody = new HashMap<>();
+//        responseBody.put("id", userDto.getUserId());
+//        responseBody.put("nickname", userDto.getNickname());
+//        responseBody.put("accessToken", tokenDto.getAccessToken());
+//        responseBody.put("refreshToken", tokenDto.getRefreshToken());
+//
+//        return ResponseUtil.SuccessDataResponse(responseBody);
+//    }
+    @Operation(summary = "토큰 재발급", description = "Refresh Token을 이용해 새로운 Access Token과 Refresh Token을 발급받습니다.")
+    @ApiResponse(responseCode = "200", description = "토큰 재발급 성공")
+    @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰")
+    @PostMapping("/reissue")
+    public ResponseEntity<ResponseDto> reissueToken(
+            @RequestHeader("Authorization") String refreshToken) {
+        try {
+            String pureToken = refreshToken.replace("Bearer ", "");
+            TokenDto newTokens = userService.reissueToken(pureToken);
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("accessToken", newTokens.getAccessToken());
+            responseBody.put("refreshToken", newTokens.getRefreshToken());
+            return ResponseUtil.SuccessDataResponse(responseBody);
+        } catch (RuntimeException e) {
+            return ResponseUtil.ErrorResponse(-1, e.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+    }
+
 }

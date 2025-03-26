@@ -18,7 +18,7 @@ public interface UserAuthorityRepository extends JpaRepository<UserAuthority,Lon
     @Modifying
     @Transactional
     @Query("UPDATE UserAuthority ua SET ua.refreshToken = :refreshToken, ua.expiresAt = :expiresAt WHERE ua.userId = :userId")
-    void updateTokenByUserId(@Param("refreshToken") String refreshToken,
+    int updateTokenByUserId(@Param("refreshToken") String refreshToken,
                             @Param("expiresAt") Date expiresAt,
                              @Param("userId") String userId);
 }
