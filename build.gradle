@@ -35,8 +35,8 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
-	//mariadb 설정
-	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+	//mysql 설정
+	runtimeOnly 'mysql:mysql-connector-java:8.0.33'
 
 
 	//JWT
@@ -56,7 +56,6 @@ dependencies {
 
 	//Oauth
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-
 
 }
 
