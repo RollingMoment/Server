@@ -23,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -127,12 +128,7 @@ public class KakaoOauthService {
         String accessToken = jwtTokenProvider.generateAccessToken(user.getUserId());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
         Date refreshTokenExpiry = jwtTokenProvider.getRefreshTokenExpiryDate();
-
-        userAuthorityRepository.save(new UserAuthority(
-                user.getUserId(),
-                refreshToken,
-                refreshTokenExpiry
-        ));
+        userAuthorityRepository.updateTokenByUserId(refreshToken, refreshTokenExpiry,user.getUserId());
         return new TokenDto(accessToken, refreshToken);
     }
 }

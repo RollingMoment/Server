@@ -35,8 +35,8 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
-	//mysql 설정
-	runtimeOnly 'mysql:mysql-connector-java:8.0.33'
+	//sql 설정
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:3.1.4'
 
 
 	//JWT

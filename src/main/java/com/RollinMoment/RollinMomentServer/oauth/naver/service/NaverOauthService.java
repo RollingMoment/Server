@@ -14,7 +14,6 @@ import com.RollinMoment.RollinMomentServer.oauth.naver.dto.NaverOauthKeyDto;
 import com.RollinMoment.RollinMomentServer.oauth.naver.dto.NaverResponseDto;
 import com.RollinMoment.RollinMomentServer.oauth.naver.dto.NaverUserDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -112,14 +111,11 @@ public class NaverOauthService {
         String accessToken = jwtTokenProvider.generateAccessToken(user.getUserId());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
         Date refreshTokenExpiry = jwtTokenProvider.getRefreshTokenExpiryDate();
-
-        userAuthorityRepository.save(new UserAuthority(
-                user.getUserId(),
-                refreshToken,
-                refreshTokenExpiry
-        ));
+        userAuthorityRepository.updateTokenByUserId(refreshToken, refreshTokenExpiry,user.getUserId());
         return new TokenDto(accessToken, refreshToken);
     }
+
+
     public void unlinkNaver(String accessToken) {
         String url = "https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id=" +
                 naverOauthKeyDto.getClientId() + "&client_secret=" + naverOauthKeyDto.getClientSecret() + "&access_token=" + accessToken + "&service_provider=NAVER";

@@ -43,9 +43,7 @@ public class UserService {
         String accessToken = jwtTokenProvider.generateAccessToken(user.getUserId());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
         Date expiresAt = jwtTokenProvider.getRefreshTokenExpiryDate();
-
-        // RefreshToken 저장
-        userAuthorityRepository.save(new UserAuthority(user.getUserId(), refreshToken, expiresAt));
+        userAuthorityRepository.updateTokenByUserId(refreshToken, expiresAt,user.getUserId());
 
         return new TokenDto(accessToken, refreshToken);
     }

@@ -172,11 +172,13 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "회원탈퇴 성공")
     @ApiResponse(responseCode = "400", description = "회원탈퇴 실패")
     @PutMapping("/withdraw/kakao")
-    public ResponseEntity<ResponseDto> withdrawKakaoUser(HttpServletRequest request) {
+    public ResponseEntity<ResponseDto> withdrawKakaoUser(
+            HttpServletRequest request,
+            @RequestHeader("KakaoAccessToken") String kakaoAccessToken) {
         try {
             String accessToken = jwtTokenProvider.getHeaderToken(request, JwtTokenProvider.ACCESS_TOKEN_HEADER);
             String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
-            kakaoOauthService.unlinkKakao(accessToken);
+            kakaoOauthService.unlinkKakao(kakaoAccessToken);
             userService.delete(userId);
             return ResponseUtil.SuccessResponse("카카오 회원 탈퇴 완료");
         } catch (Exception e) {
@@ -243,11 +245,12 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "회원탈퇴 성공")
     @ApiResponse(responseCode = "400", description = "회원탈퇴 실패")
     @PutMapping("/withdraw/naver")
-    public ResponseEntity<ResponseDto> withdrawNaverUser(HttpServletRequest request) {
+    public ResponseEntity<ResponseDto> withdrawNaverUser(HttpServletRequest request,
+    @RequestHeader("NaverAccessToken") String NaverAccessToken) {
         try {
             String accessToken = jwtTokenProvider.getHeaderToken(request, JwtTokenProvider.ACCESS_TOKEN_HEADER);
             String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
-            naverOauthService.unlinkNaver(accessToken);
+            naverOauthService.unlinkNaver(NaverAccessToken);
             userService.delete(userId);
             return ResponseUtil.SuccessResponse("네이버 회원 탈퇴 완료");
         } catch (Exception e) {
