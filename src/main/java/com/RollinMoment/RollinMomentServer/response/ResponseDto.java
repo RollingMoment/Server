@@ -1,15 +1,13 @@
-package com.RollinMoment.RollinMomentServer.response.member;
+package com.RollinMoment.RollinMomentServer.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Map;
-
 @Data
 @AllArgsConstructor
-public class ResponseJoinDto {
+public class ResponseDto {
     private Meta meta;
     private Object body;
 

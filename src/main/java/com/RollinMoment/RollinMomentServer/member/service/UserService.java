@@ -41,7 +41,7 @@ public class UserService {
         }
 
         String accessToken = jwtTokenProvider.generateAccessToken(user.getUserId());
-        String refreshToken = jwtTokenProvider.generateRefreshToken();
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
         Date expiresAt = jwtTokenProvider.getRefreshTokenExpiryDate();
 
         // RefreshToken 저장

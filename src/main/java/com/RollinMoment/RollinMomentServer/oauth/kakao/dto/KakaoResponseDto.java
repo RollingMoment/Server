@@ -1,6 +1,5 @@
 package com.RollinMoment.RollinMomentServer.oauth.kakao.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,9 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class KakaoUserDto {
-    private String deviceId;
-    private boolean alarm;
-    private String osType;
-
+public class KakaoResponseDto {
+    private String userId;
+    private String nickname;
 }

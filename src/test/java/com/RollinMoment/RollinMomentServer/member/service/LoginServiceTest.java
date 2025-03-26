@@ -91,7 +91,7 @@ class LoginServiceTest {
         ));
         userRepository.save(user);
 
-        String refreshToken = jwtTokenProvider.generateRefreshToken();
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
         Date expiryDate = jwtTokenProvider.getRefreshTokenExpiryDate();
         userAuthorityRepository.save(new UserAuthority(userId, refreshToken, expiryDate));
 
@@ -106,5 +106,40 @@ class LoginServiceTest {
         // THEN
         Optional<UserAuthority> deleted = userAuthorityRepository.findByUserId(userId);
         assertThat(deleted).isEmpty(); //  삭제됨
+    }
+    @Test
+    void refreshToken으로_AccessToken_재발급_성공() {
+        // GIVEN
+        String userId = "relogin@test.com";
+        UserEntity user = userRepository.save(new UserEntity(
+                userId, "device123", "암호", "닉네임", true,
+                Gender.NONE, Provider.ROLLINMOMENT, Ostype.ANDROID , UserStatus.ACTIVE,null
+        ));
+
+        // Refresh Token 생성 및 DB 저장
+        String refreshToken = jwtTokenProvider.generateRefreshToken(userId);
+        Date expiry = jwtTokenProvider.getRefreshTokenExpiryDate();
+        userAuthorityRepository.save(new UserAuthority(userId, refreshToken, expiry));
+
+        // WHEN
+        // 1. Refresh Token 유효성 검증
+        boolean isValid = jwtTokenProvider.validateToken(refreshToken);
+        assertThat(isValid).isTrue();
+
+        // 2. 토큰에서 사용자 ID 추출
+        String extractedUserId = jwtTokenProvider.getUserIdFromToken(refreshToken);
+        assertThat(extractedUserId).isEqualTo(userId);
+
+        // 3. DB에서 토큰 일치 여부 확인
+        UserAuthority authority = userAuthorityRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자"));
+
+        assertThat(authority.getRefreshToken()).isEqualTo(refreshToken);
+
+        // 4. AccessToken 재발급
+        String newAccessToken = jwtTokenProvider.generateAccessToken(userId);
+        assertThat(newAccessToken).isNotNull();
+
+        log.info(" 새로 발급된 Access Token: " + newAccessToken);
     }
 }
