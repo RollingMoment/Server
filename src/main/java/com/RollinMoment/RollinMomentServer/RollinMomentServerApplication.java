@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class RollinMomentServerApplication {
 
 	public static void main(String[] args) {
+		// rollinmoment
 		SpringApplication.run(RollinMomentServerApplication.class, args);
 	}
 
