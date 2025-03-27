@@ -11,6 +11,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -54,6 +55,8 @@ public class UserEntity extends BaseTimeEntity {
 
     private LocalDateTime deleteTime;
 
+    private String uniqueNumber;
+
     public static UserEntity transDTO(SignUpDto signUpDto) {
         return new UserEntity(
                 signUpDto.getUserId(),
@@ -65,8 +68,8 @@ public class UserEntity extends BaseTimeEntity {
                 Provider.valueOf(signUpDto.getProvider().toUpperCase()),
                 Ostype.valueOf(signUpDto.getOsType().toUpperCase()),
                 UserStatus.ACTIVE,
-                null
+                null,
+                UUID.randomUUID().toString().replace("-", "").substring(0, 12)
         );
-
     }
 }
