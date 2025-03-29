@@ -1,6 +1,6 @@
 package com.RollinMoment.RollinMomentServer.trace.entity;
 
-import com.RollinMoment.RollinMomentServer.common.GenerateUtils;
+import com.RollinMoment.RollinMomentServer.common.utils.GenerateUtil;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -43,7 +43,7 @@ public class Trace {
 
 	public Trace(String momentCode, String writer, String content, Boolean isAnonymous,
 				 LocalDateTime removedAt) {
-		this.code = GenerateUtils.makeTraceCode();
+		this.code = GenerateUtil.makeTraceCode();
 		this.momentCode = momentCode;
 		this.writer = writer;
 		this.content = content;

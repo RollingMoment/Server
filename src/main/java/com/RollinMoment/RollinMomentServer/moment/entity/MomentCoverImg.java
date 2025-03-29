@@ -26,4 +26,15 @@ public class MomentCoverImg {
 
 	@Column(name = "file_name", nullable = false)
 	private String fileName;
+
+	public MomentCoverImg(String code, CoverImgType type, String url, String fileName) {
+		this.code = code;
+		this.type = type;
+		this.url = url;
+		this.fileName = fileName;
+	}
+
+	public static MomentCoverImg basic() {
+		return new MomentCoverImg("none", CoverImgType.NONE, "", "");
+	}
 }

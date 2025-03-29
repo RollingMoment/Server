@@ -1,8 +1,10 @@
 package com.RollinMoment.RollinMomentServer.moment.entity;
 
-import com.RollinMoment.RollinMomentServer.common.GenerateUtils;
+import com.RollinMoment.RollinMomentServer.common.utils.GenerateUtil;
 import com.RollinMoment.RollinMomentServer.common.type.BgColor;
+import com.RollinMoment.RollinMomentServer.common.type.FontType;
 import com.RollinMoment.RollinMomentServer.common.type.PeriodType;
+import com.RollinMoment.RollinMomentServer.moment.service.dto.MomentSettingRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,8 +35,10 @@ public class Moment {
 	@Column(name = "moment_cover_img_code")
 	private MomentCoverImg coverImg;
 
-	@Column(name = "font", nullable = false)
-	private String font;				// font 미설정 시 default
+	@Column(name = "font", nullable = false,
+			columnDefinition = "ENUM('DEFAULT','ONGEULEAF','ESCORE','NAVER'")
+	@Enumerated(EnumType.STRING)
+	private FontType font;				// font 미설정 시 default
 
 	@Column(name = "expire_type", nullable = false,
 	 		columnDefinition = "ENUM('NONE','THREE_DAYS_LATER','SEVEN_DAYS_LATER')")
@@ -63,10 +67,10 @@ public class Moment {
 	@Column(name = "is_deleted", nullable = false)
 	private Boolean isDeleted;
 
-	public Moment(String title, MomentCoverImg coverImg, String font, PeriodType expireType, String categoryEnName,
-				  String comment, String receiver, Boolean isPublic) {
-		this.code = GenerateUtils.makeMomentCode();
-		this.inviteCode = GenerateUtils.makeInviteCode(this.code);
+	public Moment(String title, MomentCoverImg coverImg, FontType font, PeriodType expireType, String categoryEnName,
+				  String comment, Boolean isPublic) {
+		this.code = GenerateUtil.makeMomentCode();
+		this.inviteCode = GenerateUtil.makeInviteCode(this.code);
 		this.title = title;
 		this.bgColor = randomBgColor();
 		this.coverImg = coverImg;
@@ -75,29 +79,36 @@ public class Moment {
 		this.expireAt = makeExpireDate(expireType);
 		this.categoryEnName = categoryEnName;
 		this.comment = comment;
-		this.receiver = receiver;
 		this.isPublic = isPublic;
 	}
 
-	public void updateMomentInfo() {
-		// TODO : moment patch (설정 수정)
+	public void changeMomentSettings(MomentSettingRequest request) {
+		this.title = request.title();
+		this.comment = request.comment();
+		if(!this.expireType.equals(request.expireType())) {
+			// 기존 마감일 타입과 다를때만 변경
+			this.expireType = request.expireType();
+			this.expireAt = makeExpireDate(request.expireType());
+		}
+//		this.coverImg = request.coverImg();
+		this.categoryEnName = request.category().name();
 	}
 
 	public void deleteMoment() {
-		// TODO : softDelete -- 어디까지 지울 것인가?
+		this.isDeleted = true;
 	}
 
 	public void sendMomentTo(String userId) {
-		// TODO : 모먼트 선물하기 -> mvp 이후 , 후순위 (useId 에게 모든 권한 이양?)
-		//		선물한 이력이 남는지? 등등 재확인 필요
+		// TODO : 모먼트 선물하기 -> mvp 에서 제외
 	}
 
 
-	// TODO : 배경 컬러 랜덤으로 설정 -> BgColor 에 index 설정 후 math.random 활용
+	// TODO :: 후순위
+	//  	배경 컬러 랜덤으로 설정 -> BgColor 에 index 설정 후 math.random 활용
 	private BgColor randomBgColor() {
-		int random = (int) ((Math.random()*10) % 10);
-		System.out.println(BgColor.class.getSuperclass().getDeclaredFields());
-		return null;
+//		int random = (int) ((Math.random()*10) % 10);
+//		System.out.println(BgColor.class.getSuperclass().getDeclaredFields());
+		return BgColor.PURPLE;
 	}
 
 	private LocalDateTime makeExpireDate(PeriodType expireType) {

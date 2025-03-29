@@ -1,6 +1,6 @@
 package com.RollinMoment.RollinMomentServer.reaction.entity;
 
-import com.RollinMoment.RollinMomentServer.common.GenerateUtils;
+import com.RollinMoment.RollinMomentServer.common.utils.GenerateUtil;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,7 +31,7 @@ public class Reaction {
 	private LocalDateTime createdAt;
 
 	public Reaction(String typeName, String traceCode, String reactedUser) {
-		this.code = GenerateUtils.makeReactionCode();
+		this.code = GenerateUtil.makeReactionCode();
 		this.typeName = typeName;
 		this.traceCode = traceCode;
 		this.reactedUser = reactedUser;

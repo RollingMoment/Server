@@ -1,11 +1,11 @@
-package com.RollinMoment.RollinMomentServer.common;
+package com.RollinMoment.RollinMomentServer.common.utils;
 
 import com.RollinMoment.RollinMomentServer.common.type.PageType;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class GenerateUtils {
+public class GenerateUtil {
 
 	public static String makeMomentCode() {
 		return makeCode(PageType.MOMENT);
