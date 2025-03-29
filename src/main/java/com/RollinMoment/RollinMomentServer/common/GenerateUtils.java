@@ -15,6 +15,10 @@ public class GenerateUtils {
 		return makeCode(PageType.TRACE);
 	}
 
+	public static String makeReactionCode() {
+		return makeCode(PageType.REACTION);
+	}
+
 	// TODO : pk 형식 정해서 generate 현재(임시) :: MO2025031719557974290
 	private static String makeCode(PageType type) {
 		return type.getCodePrefix()
